@@ -1,15 +1,15 @@
 import {VariableGroup, Expression} from './expression.js'
 
 const CF = "Common Factor";
-const GR = "Grouping";
+// const GR = "Grouping";
 const PST = "Perfect Square Trinomial";
 const DS = "Difference of Two Squares";
 const QE = "Quadratic Expression";
 const NA = "Already Fully Factorized";
 
 export default class Problem {
-  static STRATEGIES = { CF, GR, PST, DS, QE, NA };
-  static STRATEGIES_LIST = [CF, GR, PST, DS, QE, NA];
+  static STRATEGIES = { CF, PST, DS, QE, NA };
+  static STRATEGIES_LIST = [CF, PST, DS, QE, NA];
 
   constructor(options) {
     const expression1 = new Expression(1, 1, '+', [
