@@ -16,6 +16,22 @@ const QE = Problem.STRATEGIES.QE;
 const NA = Problem.STRATEGIES.NA;
 const STRATEGIES = Problem.STRATEGIES_LIST;
 
+function toItem(x, isCorrect) {
+  const symbol = isCorrect ? " ✔️" : " ❌";
+  const c = isCorrect ? "correct-animation" : "error-animation";
+  let line = null;
+  if (x instanceof Expression) {
+    const equation = Vue.h('span', {
+      class: 'equation'
+    }, format(x.toString()));
+    line = Vue.h('span', {class: c}, [equation, symbol])
+  } else if (Array.isArray(x)) {
+    line = Vue.h('span', {class: c}, [x[0], " and ", x[1], symbol])
+  } else {
+    line = Vue.h('span', {class: c}, parse(x).concat([symbol]))
+  }
+  return Vue.h('p', { key: x.toString() }, line);
+}
 
 export const ProblemComponent = {
   props: ['problem'],
@@ -53,16 +69,7 @@ export const ProblemComponent = {
             class: ['question']
           }, parse(h[0].question)));
           const answer = h[1];
-          if (answer instanceof Expression) {
-            const span = Vue.h('span', {
-              class: 'equation'
-            }, format(answer.toString()));
-            items.push(Vue.h('p', {}, [span, " ✔️"]));
-          } else if (Array.isArray(answer)) {
-            items.push(Vue.h('p', {}, [answer[0], " and ", answer[1], " ✔️"]));
-          } else {
-            items.push(Vue.h('p', {}, parse(answer).concat([" ✔️"])));
-          }
+          items.push(toItem(answer, true));
         } else if (typeof h === 'string') {
           items.push(Vue.h('p', {}, parse(h)));
         } else {
@@ -103,16 +110,7 @@ export const ProblemComponent = {
 
       if (data.flow.currentMistake) {
         const mistake = data.flow.currentMistake;
-        if (mistake instanceof Expression) {
-          const span = Vue.h('span', {
-            class: 'equation'
-          }, mistake.toString());
-          items.push(Vue.h('p', {}, [span, " ❌"]));
-        } else if (Array.isArray(mistake)) {
-          items.push(Vue.h('p', {}, [mistake[0], " and ", mistake[1], " ❌"]));
-        } else {
-          items.push(Vue.h('p', {}, parse(mistake).concat([" ❌"])));
-        }
+        items.push(toItem(mistake, false));
         items.push(Vue.h('p', {}, parse(data.flow.currentMistakeMessage)));
         items.push(Vue.h('p', {}, "Try again!"));
       }
