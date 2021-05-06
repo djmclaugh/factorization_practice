@@ -13,8 +13,9 @@ export default class Problem {
 
   constructor(options) {
     const expression1 = new Expression(1, 1, '+', [
-      new Expression(4, 1, 'v', new VariableGroup({x: 2, y: 1})),
-      new Expression(-4, 1, 'v', new VariableGroup({x: 0, y: 1})),
+      new Expression(1, 1, 'v', new VariableGroup({x: 4, y: 1})),
+      new Expression(-1, 1, 'v', new VariableGroup({x: 2, y: 1})),
+      new Expression(-12, 1, 'v', new VariableGroup({x: 0, y: 1})),
       // new Expression(-1, 1, 'v', new VariableGroup({x: 1, y: 0})),
       // new Expression(-1, 1, 'v', new VariableGroup({x: 1, y: 0})),
       // new Expression(1, 1, 'v', new VariableGroup({x: 0, y: 0})),

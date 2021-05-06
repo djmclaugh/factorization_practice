@@ -84,6 +84,9 @@ export default {
       for (const v of Object.keys(input.vars)) {
         items.push(Vue.h('label', {
           for: inputIdBase + "-" + v,
+          style: {
+            opacity: input.vars[v] == "" ? 0.5 : 1,
+          },
         }, " " + toItalics(v)));
         const exponentInput = Vue.h('input', {
           id: inputIdBase + "-" + v,

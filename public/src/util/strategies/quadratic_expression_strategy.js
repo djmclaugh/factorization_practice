@@ -14,7 +14,9 @@ export default class QuadraticExpressionStrategy extends Strategy {
     const middle = expression.expressions[1];
     const constant = expression.expressions[2];
 
-    if (!leading.group.times(constant.group).isLike(middle.group.times(middle.group))) {
+    if (!leading.group.isSquare()
+        || !constant.group.isSquare()
+        || !leading.group.times(constant.group).isLike(middle.group.times(middle.group))) {
       return false;
     }
     const a = leading.coefficient;

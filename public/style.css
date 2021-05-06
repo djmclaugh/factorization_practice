@@ -49,6 +49,8 @@ input[type=number] {
   text-align: center;
   width: 2ch;
   padding-bottom: 0px;
+  padding-left: 4px;
+  padding-right: 4px;
 }
 
 .number-input {
@@ -56,12 +58,17 @@ input[type=number] {
   text-align: right;
   width: 3ch;
   padding-bottom: 0px;
+  padding-left: 4px;
+  padding-right: 24px;
 }
 
 .exponent-input {
   font-size: 12px;
   width: 1ch;
-  padding-bottom: 0px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 2px;
+  padding-right: 2px;
 }
 
 @keyframes appear {
