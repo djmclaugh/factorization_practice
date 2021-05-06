@@ -1,0 +1,65 @@
+@font-face {
+    font-family: "Symbola";
+    src: url('fonts/symbola.ttf') format("truetype");
+}
+
+body {
+  padding: 20px;
+  font-family: sans-serif;
+  background-color: #f9f9f9;
+}
+
+canvas {
+  border: solid;
+}
+
+.problem {
+  font-size: 32px;
+}
+
+.question {
+  font-size: 20px;
+  text-decoration: underline;
+}
+
+.equation {
+  font-family: Cambria Math, Symbola;
+  white-space: nowrap;
+}
+
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.term-input {
+  font-size: 20px;
+}
+
+.coefficient-input {
+  font-size: 20px;
+  text-align: center;
+  width: 2ch;
+  padding-bottom: 0px;
+}
+
+.number-input {
+  font-size: 20px;
+  text-align: right;
+  width: 3ch;
+  padding-bottom: 0px;
+}
+
+.exponent-input {
+  font-size: 12px;
+  width: 1ch;
+  padding-bottom: 0px;
+}
