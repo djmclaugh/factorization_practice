@@ -27,6 +27,7 @@ export default {
     Vue.onMounted(() => {
       const i = document.getElementById(inputIdBase + "-1");
       i.focus();
+      window.scrollTo(0,document.body.scrollHeight);
     })
 
     return () => {

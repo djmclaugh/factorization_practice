@@ -3,13 +3,13 @@ import {VariableGroup, Expression} from './expression.js'
 const CF = "Common Factor";
 // const GR = "Grouping";
 const PST = "Perfect Square Trinomial";
-const DS = "Difference of Two Squares";
-const QE = "Quadratic Expression";
+const DS = "Difference of Squares";
+const QE = "Product-Sum";
 const NA = "Already Fully Factorized";
 
 export default class Problem {
-  static STRATEGIES = { CF, PST, DS, QE, NA };
-  static STRATEGIES_LIST = [CF, PST, DS, QE, NA];
+  static STRATEGIES = { CF, DS, PST, QE, NA };
+  static STRATEGIES_LIST = [CF, DS, PST, QE, NA];
 
   constructor(options) {
     const expression1 = new Expression(1, 1, '+', [

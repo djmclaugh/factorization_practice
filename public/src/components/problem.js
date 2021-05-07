@@ -16,7 +16,7 @@ const QE = Problem.STRATEGIES.QE;
 const NA = Problem.STRATEGIES.NA;
 const STRATEGIES = Problem.STRATEGIES_LIST;
 
-function toItem(x, isCorrect) {
+function toAnswerElement(x, isCorrect) {
   const symbol = isCorrect ? " ✔️" : " ❌";
   const c = isCorrect ? "correct-animation" : "error-animation";
   let line = null;
@@ -48,6 +48,31 @@ export const ProblemComponent = {
       errorMessage: null,
     });
 
+    function toExpressionElement(e) {
+      const restartButton = Vue.h('button', {
+        onClick: () => {
+          data.flow.restartFrom(e);
+        },
+      }, 'Restart from here')
+      const equation = Vue.h('span', {
+        class: ['problem', 'equation'],
+      }, e.toString());
+
+      let problemBox;
+      if (data.flow.history[data.flow.history.length - 1] == e) {
+        problemBox = Vue.h('span', {
+          class: 'problem-box',
+        }, [equation]);
+      } else {
+        problemBox = Vue.h('span', {
+          class: 'problem-box',
+        }, [equation, restartButton]);
+      }
+      return Vue.h('p', {
+        class: 'appear-animation',
+      }, problemBox);
+    }
+
     function onAnswer(choice) {
       data.flow.answer(choice);
     }
@@ -61,17 +86,17 @@ export const ProblemComponent = {
 
       for (const h of data.flow.history) {
         if (h instanceof Expression) {
-          items.push(Vue.h('p', {
-            class: ['problem', 'equation'],
-          }, h.toString()));
+          items.push(toExpressionElement(h));
         } else if (Array.isArray(h)) {
           items.push(Vue.h('p', {
             class: ['question']
           }, parse(h[0].question)));
           const answer = h[1];
-          items.push(toItem(answer, true));
+          items.push(toAnswerElement(answer, true));
         } else if (typeof h === 'string') {
-          items.push(Vue.h('p', {}, parse(h)));
+          items.push(Vue.h('p', {
+            class: 'appear-animation',
+          }, parse(h)));
         } else {
           throw new Error("Unexpected history item: " + JSON.stringify(h));
         }
@@ -79,7 +104,7 @@ export const ProblemComponent = {
 
       if (data.flow.currentQuestion) {
         items.push(Vue.h('p', {
-          class: ['question'],
+          class: ['question', 'appear-animation'],
         }, parse(data.flow.currentQuestion.question)));
 
         switch(data.flow.currentQuestion.inputType) {
@@ -88,6 +113,7 @@ export const ProblemComponent = {
               key: "input_" + (data.flow.history.length + 1),
               choices: data.flow.currentQuestion.inputOptions,
               onChoice: onAnswer,
+              class: 'appear-animation',
             }));
             break;
           case Question.ST:
@@ -95,12 +121,14 @@ export const ProblemComponent = {
               key: "input_" + (data.flow.history.length + 1),
               variables: data.flow.currentQuestion.inputOptions,
               onInput: onAnswer,
+              class: 'appear-animation',
             }));
             break;
           case Question.TN:
             items.push(Vue.h(TwoNumbersInputComponent, {
               key: "input_" + (data.flow.history.length + 1),
               onInput: onAnswer,
+              class: 'appear-animation',
             }));
             break;
           default:
@@ -110,7 +138,7 @@ export const ProblemComponent = {
 
       if (data.flow.currentMistake) {
         const mistake = data.flow.currentMistake;
-        items.push(toItem(mistake, false));
+        items.push(toAnswerElement(mistake, false));
         items.push(Vue.h('p', {}, parse(data.flow.currentMistakeMessage)));
         items.push(Vue.h('p', {}, "Try again!"));
       }

@@ -56,6 +56,7 @@ export default {
     Vue.onMounted(() => {
       const c = document.getElementById(inputIdBase + "-coefficient");
       c.focus();
+      window.scrollTo(0,document.body.scrollHeight);
     })
 
     return () => {

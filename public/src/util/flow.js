@@ -45,6 +45,25 @@ export default class Flow {
     this.currentStrategy = null;
   }
 
+  restartFrom(expression) {
+    const index = this.history.indexOf(expression);
+    if (index == -1) {
+      throw new Error("Invalid expression to restart at: " + expression);
+    }
+    this.currentExpression = expression;
+    this.currentIndex = -1;
+    this.history = this.history.slice(0, index + 1);
+    this.currentMistake = null;
+    this.currentMistakeMessage = null;
+    this.currentStrategy = null;
+    if (index == 0) {
+      this.currentIndex = 0;
+      this.currentQuestion = this.generateStrategyQuestion(this.currentExpression, true);
+    } else {
+      this.currentQuestion = this.generateKeepGoingQuestion(this.currentExpression);
+    }
+  }
+
   currentFactor() {
     const f = this.fullCurrentFactor();
     if (f) {
