@@ -16,9 +16,12 @@ const QE = Problem.STRATEGIES.QE;
 const NA = Problem.STRATEGIES.NA;
 const STRATEGIES = Problem.STRATEGIES_LIST;
 
-function toAnswerElement(x, isCorrect) {
+function toAnswerElement(x, isCorrect, animate) {
   const symbol = isCorrect ? " ✔️" : " ❌";
-  const c = isCorrect ? "correct-animation" : "error-animation";
+  let c = '';
+  if (animate) {
+    c = isCorrect ? "correct-animation" : "error-animation";
+  }
   let line = null;
   if (x instanceof Expression) {
     const equation = Vue.h('span', {
@@ -38,17 +41,17 @@ export const ProblemComponent = {
 
   setup(props, {slots, attrs, emit}) {
 
+    let renderedHistoryLength = 0;
     const data = Vue.reactive({
       currentProblem: props.problem.expression,
       flow: new Flow(props.problem.expression),
       strategy: null,
-      incorectStrategies: [],
       commonFactor: null,
       wrongChoice: null,
       errorMessage: null,
     });
 
-    function toExpressionElement(e) {
+    function toExpressionElement(e, animate) {
       const restartButton = Vue.h('button', {
         onClick: () => {
           data.flow.restartFrom(e);
@@ -69,7 +72,7 @@ export const ProblemComponent = {
         }, [equation, restartButton]);
       }
       return Vue.h('p', {
-        class: 'appear-animation',
+        class: {'appear-animation': animate},
       }, problemBox);
     }
 
@@ -84,18 +87,19 @@ export const ProblemComponent = {
     return () => {
       const items = [];
 
-      for (const h of data.flow.history) {
+      for (let i = 0; i < data.flow.history.length; ++i) {
+        const h = data.flow.history[i];
         if (h instanceof Expression) {
-          items.push(toExpressionElement(h));
+          items.push(toExpressionElement(h, i >= renderedHistoryLength));
         } else if (Array.isArray(h)) {
           items.push(Vue.h('p', {
             class: ['question']
           }, parse(h[0].question)));
           const answer = h[1];
-          items.push(toAnswerElement(answer, true));
+          items.push(toAnswerElement(answer, true, i >= renderedHistoryLength));
         } else if (typeof h === 'string') {
           items.push(Vue.h('p', {
-            class: 'appear-animation',
+            class: i >= renderedHistoryLength ? 'appear-animation' : '',
           }, parse(h)));
         } else {
           throw new Error("Unexpected history item: " + JSON.stringify(h));
@@ -104,7 +108,10 @@ export const ProblemComponent = {
 
       if (data.flow.currentQuestion) {
         items.push(Vue.h('p', {
-          class: ['question', 'appear-animation'],
+          class: {
+            'question': true,
+            'appear-animation': !data.flow.currentMistake,
+          },
         }, parse(data.flow.currentQuestion.question)));
 
         switch(data.flow.currentQuestion.inputType) {
@@ -113,7 +120,7 @@ export const ProblemComponent = {
               key: "input_" + (data.flow.history.length + 1),
               choices: data.flow.currentQuestion.inputOptions,
               onChoice: onAnswer,
-              class: 'appear-animation',
+              class: {'appear-animation': !data.flow.currentMistake},
             }));
             break;
           case Question.ST:
@@ -138,11 +145,13 @@ export const ProblemComponent = {
 
       if (data.flow.currentMistake) {
         const mistake = data.flow.currentMistake;
-        items.push(toAnswerElement(mistake, false));
+        items.push(toAnswerElement(mistake, false, true));
         items.push(Vue.h('p', {}, parse(data.flow.currentMistakeMessage)));
         items.push(Vue.h('p', {}, "Try again!"));
       }
 
+
+      renderedHistoryLength = data.flow.history.length;
       return Vue.h('div', {}, items);
     };
   },

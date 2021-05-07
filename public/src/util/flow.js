@@ -258,7 +258,7 @@ export default class Flow {
     if (!isStartOfFlow) {
       choices.splice(choices.indexOf(Problem.STRATEGIES.NA), 1);
     }
-    return new Question(`What strategy can we use to factorize ${expression.toDecoratedString()}?`, Question.MC, choices, (a) => {
+    return new Question(`What method can we use to factorize ${expression.toDecoratedString()}?`, Question.MC, choices, (a) => {
       switch (a) {
         case Problem.STRATEGIES.CF:
           if (CommonFactorStrategy.canFactorize(expression)) {

@@ -17,8 +17,52 @@ button {
   margin: 4px;
 }
 
+fieldset {
+  display: inline-block;
+}
+
+.nav-link {
+  padding: 8px;
+  margin-right: 8px;
+  color:  #000000a0;
+}
+
+.nav-link:hover {
+  color: black;
+  border-color: #000000e0;
+}
+
+.nav-link:active {
+  padding: 7px;
+  background-color: #fcfcfc;
+  border-style: solid;
+  border-color: #00000010;
+  border-width: 1px;
+  border-radius: 4px;
+}
+
+.nav-selected {
+  padding: 7px;
+  color: black;
+  background-color: white;
+  border-style: solid;
+  border-color: black;
+  border-width: 1px;
+  border-radius: 4px;
+}
+
+.nav-selected:hover, .nav-selected:active {
+  padding: 7px;
+  color: black;
+  background-color: white;
+  border-style: solid;
+  border-color: black;
+  border-width: 1px;
+  border-radius: 4px;
+}
+
 .problem {
-  font-size: 28px;
+  font-size: 26px;
 }
 
 .problem-box {
