@@ -6,7 +6,7 @@ import Problem from './util/problem.js'
 const App = {
   setup() {
     const data = Vue.reactive({
-      tab: 1,
+      tab: 0,
       options: {
         strategies: {
           [Problem.STRATEGIES.CF]: true,

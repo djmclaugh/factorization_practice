@@ -40,7 +40,6 @@ export const ProblemComponent = {
   props: ['problem'],
 
   setup(props, {slots, attrs, emit}) {
-
     let renderedHistoryLength = 0;
     const data = Vue.reactive({
       currentProblem: props.problem.expression,
@@ -55,6 +54,11 @@ export const ProblemComponent = {
       const restartButton = Vue.h('button', {
         onClick: () => {
           data.flow.restartFrom(e);
+          if (e == data.flow.history[0]) {
+            emit('reset');
+          } else {
+            emit('undo');
+          }
         },
       }, 'Restart from here')
       const equation = Vue.h('span', {
@@ -62,7 +66,7 @@ export const ProblemComponent = {
       }, e.toString());
 
       let problemBox;
-      if (data.flow.history[data.flow.history.length - 1] == e) {
+      if (data.flow.history[data.flow.history.length - 1] == e && !data.flow.currentMistake) {
         problemBox = Vue.h('span', {
           class: 'problem-box',
         }, [equation]);
@@ -77,7 +81,11 @@ export const ProblemComponent = {
     }
 
     function onAnswer(choice) {
+      emit('start');
       data.flow.answer(choice);
+      if (!data.flow.currentQuestion) {
+        emit('done');
+      }
     }
 
     Vue.onUpdated(() => {

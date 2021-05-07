@@ -17,7 +17,7 @@ export default {
             value: s,
             checked: props.options.strategies[s],
             onInput: (e) => {
-              props.options.strategies[s] = e.checked ? true : false;
+              props.options.strategies[s] = e.target.checked ? true : false;
             }
           }, ''),
           Vue.h('label', {for: 'method-to-practice-' + s}, s),
