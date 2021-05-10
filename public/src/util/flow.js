@@ -28,12 +28,11 @@ function isFactorizable(expression, allowedStrategies) {
 
 export default class Flow {
 
-  constructor(originalExpression, options) {
-    this.originalExpression = originalExpression;
-    this.options = options || {};
-    this.options.allowedStrategies = [Problem.STRATEGIES.CF, Problem.STRATEGIES.PST, Problem.STRATEGIES.DS, Problem.STRATEGIES.QE]
+  constructor(problem) {
+    this.originalExpression = problem.expression;
+    this.options = problem.options;
     // The expression that we are trying to factor further
-    this.currentExpression = originalExpression;
+    this.currentExpression = this.originalExpression;
     // The index of the specific factor in the expression that we are trying to factor further
     this.currentIndex = 0;
     this.history = [ this.originalExpression ];
@@ -95,11 +94,15 @@ export default class Flow {
     }
   }
 
+  done() {
+    this.history.push(`Correct! ${this.currentExpression.toDecoratedString()} can't be factorized any further with the given methods. We're done!`)
+    this.currentQuestion = null;
+  }
+
   onCorrectAnswer(a) {
     if (this.currentFactor() === undefined) {
       if (a == Problem.STRATEGIES.NA) {
-        this.history.push(`Correct! ${this.currentExpression.toDecoratedString()} can't be factorized any further. We're done!`)
-        this.currentQuestion = null;
+        this.done();
       } else {
         if (this.currentExpression.type == "*") {
           for (let i = 0; i < this.currentExpression.expressions.length; ++i) {
@@ -124,8 +127,7 @@ export default class Flow {
         this.history = this.history.concat(start[0]);
         this.currentQuestion = start[1];
       } else if (a == Problem.STRATEGIES.NA) {
-        this.history.push(`Correct! ${this.currentExpression.toDecoratedString()} can't be factorized any further (using the specified techniques).`)
-        this.currentQuestion = null;
+        this.done();
       } else {
         throw new Error("Unexpected Answer: " + a)
       }
@@ -254,9 +256,9 @@ export default class Flow {
   }
 
   generateStrategyQuestion(expression, isStartOfFlow) {
-    const choices = Problem.STRATEGIES_LIST.concat();
-    if (!isStartOfFlow) {
-      choices.splice(choices.indexOf(Problem.STRATEGIES.NA), 1);
+    const choices = this.options.possibleStrategies.concat();
+    if (isStartOfFlow) {
+      choices.push(Problem.STRATEGIES.NA);
     }
     return new Question(`What method can we use to factorize ${expression.toDecoratedString()}?`, Question.MC, choices, (a) => {
       switch (a) {
@@ -270,22 +272,46 @@ export default class Flow {
           if (PerfectSquareTrinomialStrategy.canFactorize(expression)) {
             return [true, null];
           } else {
+            if (expression.expressions.length != 3) {
+              return [false, "This method can only be used on trinomials; it can only be used on expressions with exactly 3 terms."];
+            } else if (!expression.expressions[0].isObviousPerfectSquare()) {
+              return [false, "This method can only be used if the leading term is a perfect square."];
+            } else if (!expression.expressions[2].isObviousPerfectSquare()) {
+              return [false, "This method can only be used if the last term is a perfect square."];
+            } else {
+              const sqrt1 = expression.expressions[0].squareRoot();
+              const sqrt2 = expression.expressions[2].squareRoot();
+              const middle = expression.expressions[1];
+              if (!middle.isSame(new Expression(2, 1, '*', [sqrt1, sqrt2]))) {
+                return [false, "This method can only be used if the middle term is twice the product of the square roots of the other two terms."];
+              }
+            }
             return [false, "This isn't a perfect square trinomial."];
           }
         case Problem.STRATEGIES.DS:
           if (DifferenceOfSquaresStrategy.canFactorize(expression)) {
             return [true, null];
           } else {
+            if (expression.expressions.length != 2) {
+              return [false, "This method can only be used on binomials; it can only be used on expressions with exactly 2 terms."];
+            } else if (!expression.expressions[0].isObviousPerfectSquare() || !expression.expressions[1].isObviousPerfectSquare()) {
+              return [false, "This method can only be used if both terms are perfect squares."];
+            } else if (expression.expressions[0].coefficient * expression.expressions[1],coefficient >= 0) {
+              return [false, "This method can only be used if one of the terms is positive and the other is negative."];
+            }
             return [false, "This isn't a difference of squares."];
           }
         case Problem.STRATEGIES.QE:
           if (QuadraticExpressionStrategy.canFactorize(expression)) {
             return [true, null];
           } else {
-            return [false, "QE won't work."];
+            if (expression.expressions.length != 3) {
+              return [false, "This method can only be used on trinomials; it can only be used on expressions with exactly 3 terms."];
+            }
+            return [false, "Product-Sum won't work."];
           }
         case Problem.STRATEGIES.NA:
-          if (isFactorizable(expression, this.options.allowedStrategies)) {
+          if (isFactorizable(expression, this.options.possibleStrategies)) {
             return [false, "There's a way to factorize this expression further..."];
           } else {
             return [true, null];
@@ -314,13 +340,13 @@ export default class Flow {
       if (index == choicesString.length - 1) {
         // The user selected "None of the above". So check if any of the expressions are factorizable.
         for (const c of choices) {
-          if (isFactorizable(c, this.options.allowedStrategies)) {
+          if (isFactorizable(c, this.options.possibleStrategies)) {
             return [false, "One of these can be factored further..."];
           }
         }
         return [true, null];
       }
-      if (isFactorizable(choices[index], this.options.allowedStrategies)) {
+      if (isFactorizable(choices[index], this.options.possibleStrategies)) {
         return [true, null];
       }
       return [false, `${a} is already fully factorized.`];

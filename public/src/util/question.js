@@ -18,24 +18,45 @@ export default class Question {
     }
     let group = expression.expressions.map(e => e.group).reduce((a, b) => a.times(b));
     const variables = Object.keys(group.variables);
-    return new Question(`What can we factor out of ${expression.toDecoratedString()}?`, Question.ST, variables, (a) => {
-      if (a.coefficient == 1 && a.group.isConstant()) {
-        return [false, "@E@1@E@ is technically a common factor, but removing it won't change anything"];
-      } else if (expression.isCommonFactor(a)) {
-        return [true, null];
+    return new Question(`What is the largest factor we can take out of ${expression.toDecoratedString()}?`, Question.ST, variables, (a) => {
+      for (let e of expression.expressions) {
+        if (Math.abs(e.coefficient) % Math.abs(a.coefficient) !== 0) {
+          if (!e.group.isConstant() || !a.group.isConstant()) {
+            return [false, `${e.toDecoratedString()} is not divisible by ${a.toDecoratedString()} because @E@${e.coefficient}@E@ is not divisible by @E@${a.coefficient}@E@.`];
+          } else {
+            return [false, `${e.toDecoratedString()} is not divisible by ${a.toDecoratedString()}.`];
+          }
+        }
+        if (!e.group.isDivisibleBy(a.group)) {
+          if (e.coefficient != 1 || a.coefficient != 1) {
+            return [false, `${e.toDecoratedString()} is not divisible by ${a.toDecoratedString()} because @E@${e.group.toString()}@E@ is not divisible by @E@${a.group.toString()}@E@.`];
+          } else {
+            return [false, `${e.toDecoratedString()} is not divisible by ${a.toDecoratedString()}.`];
+          }
+        }
       }
-      return [false, "This factor doesn't divide every term."];
+      if (!a.absCoefficient().isSame(expression.commonFactor())) {
+        return [false, `${a.toDecoratedString()} is indeed a common factor, but not the largest one.`];
+      }
+
+      if (expression.expressions[0].coefficient < 0 && a.coefficient > 0) {
+        return [false, "You are technically correct, but it's usually a good idea to factor out a negative coefficient if the leading coefficient is negative."];
+      }
+      if (expression.expressions[0].coefficient > 0 && a.coefficient < 0) {
+        return [false, "You are technically correct, but factoring out a negative coefficient is usually only a good idea if the leading coefficient is negative."];
+      }
+      return [true, null];
     });
   }
 
   static generateRemovingCommonFactorQuestion(expression, commonFactor) {
-    const question = `What is ${expression.absCoefficient().toDecoratedString()} divided by ${commonFactor.toDecoratedString()}?`;
+    const question = `What is ${expression.toDecoratedString()} divided by ${commonFactor.toDecoratedString()}?`;
     if (expression.type != 'v') {
       throw new Error("Currently assuming that common factors are taken out of a simple term.");
     }
     const variables = Object.keys(expression.group.variables);
     return new Question(question, Question.ST, variables, (a) => {
-      if (a.coefficient * commonFactor.coefficient != Math.abs(expression.coefficient)) {
+      if (a.coefficient * commonFactor.coefficient != expression.coefficient) {
         return [false, "Not quite. The coefficient would be different."];
       } else if (!a.group.times(commonFactor.group).isLike(expression.group)) {
         return [false, "Not quite. The variables or their powers would be different."];

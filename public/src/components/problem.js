@@ -42,8 +42,7 @@ export const ProblemComponent = {
   setup(props, {slots, attrs, emit}) {
     let renderedHistoryLength = 0;
     const data = Vue.reactive({
-      currentProblem: props.problem.expression,
-      flow: new Flow(props.problem.expression),
+      flow: new Flow(props.problem),
       strategy: null,
       commonFactor: null,
       wrongChoice: null,

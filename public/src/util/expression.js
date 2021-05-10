@@ -28,6 +28,22 @@ export class VariableGroup {
   static X = new VariableGroup({x:1});
   static Y = new VariableGroup({x:1});
 
+  // Lexicographical ordering
+  static compare(a, b) {
+    const vSet = new Set(Object.keys(a.variables).concat(Object.keys(b.variables)));
+    const allVariables = [...vSet].sort();
+    for (let v of allVariables) {
+      const aPower = a.variables[v] ? a.variables[v] : 0;
+      const bPower = b.variables[v] ? b.variables[v] : 0;
+      if (aPower != bPower) {
+        // We actually want bigger powers in front of lower powers so we'll do b-a instead of the
+        // usual a-b
+        return bPower - aPower
+      }
+    }
+    return 0;
+  }
+
   constructor(variables) {
     const keys = Object.keys(variables);
     for (const key of keys) {
@@ -101,7 +117,8 @@ export class VariableGroup {
 
   toString() {
     let result = "";
-    for (let v in this.variables) {
+    const keys = Object.keys(this.variables).sort();
+    for (let v of keys) {
       result += toItalics(v);
       if (this.variables[v] != 1) {
         result += toSuperscript(this.variables[v].toString());
@@ -231,6 +248,7 @@ export class Expression {
           allTerms.push(new Expression(coefficients[i] * this.coefficient, 1, 'v', terms[i]));
         }
       }
+      allTerms.sort((a, b) => VariableGroup.compare(a.group, b.group));
 
 
       if (allTerms.length == 0) {
@@ -409,11 +427,20 @@ export class Expression {
       if (Math.abs(this.coefficient) != 1 || this.power > 1) {
         result += '('
       }
-      for (let expression of this.expressions) {
-        if (expression.power == 1 && expression.type == '+') {
-          result += '(' + expression.toString() + ')';
+      for (let i = 0; i < this.expressions.length; ++i) {
+        const expression = this.expressions[i];
+        if (i == 0 && expression.type == 'v') {
+          if (expression.coefficient < 0 && expression.power == 1 ) {
+            result += '(' + expression.toString() + ')';
+          } else {
+            result += expression.toString();
+          }
         } else {
-          result += expression.toString();
+          if (expression.coefficient == 1 && expression.power == 1 ) {
+            result += '(' + expression.toString() + ')';
+          } else {
+            result += expression.toString();
+          }
         }
       }
       if (Math.abs(this.coefficient) != 1 || this.power > 1) {

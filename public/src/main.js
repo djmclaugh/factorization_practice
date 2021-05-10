@@ -17,8 +17,11 @@ const App = {
       },
     });
 
+    let switchTimestamp = 0;
+
     function switchTab(index) {
       return () => {
+        switchTimestamp = Date.now();
         data.tab = index;
       }
     }
@@ -40,6 +43,7 @@ const App = {
         hidden: data.tab != 0,
       });
       const optionsPage = Vue.h(OptionsPage, {
+        switchTimestamp: switchTimestamp,
         options: data.options,
         hidden: data.tab != 1,
       });

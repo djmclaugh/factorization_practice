@@ -89,9 +89,15 @@ export default class QuadraticExpressionStrategy extends Strategy {
         ], Question.generateRemovingCommonFactorQuestion(this.half1.expressions[0], this.cf1)];
       } else if (this.re1 == null) {
         this.re1 = answer;
+        if (this.half1.expressions[0].coeficient < 0) {
+          this.re1 = this.re1.negativeCoefficient();
+        }
         return [[], Question.generateRemovingCommonFactorQuestion(this.half1.expressions[1], this.cf1)];
       } else if (this.re2 == null) {
         this.re2 = answer;
+        if (this.half1.expressions[1].coeficient < 0) {
+          this.re2 = this.re2.negativeCoefficient();
+        }
         const re = new Expression(1, 1, '+', [this.re1, this.re2]);
         const temp1 = new Expression(1, 1, '*', [this.cf1, re]);
         return [[

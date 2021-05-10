@@ -9,6 +9,8 @@ export default {
     const inputIdBase = 'term-input-' + uuid;
     uuid += 1;
 
+    props.variables.sort();
+
     const vars = {};
     for (const v of props.variables) {
       vars[v] = '';
@@ -19,9 +21,28 @@ export default {
       vars: vars,
     });
 
+    function onCoefficientKeypress(e) {
+      if (e.key != '-' && (e.key < '0' ||  '9' < e.key)) {
+        // If the key is not a digit or the minus sign, don't enter it.
+        e.preventDefault();
+        if ('a' < e.key && e.key < 'z') {
+          // If the user enters a letter, go to that variable if it exists.
+          const expInput = document.getElementById(inputIdBase + "-" + e.key);
+          if (expInput) {
+            expInput.value = '1';
+            input.vars[e.key] = '1';
+            expInput.select();
+          }
+        } else if (e.key == 'Enter') {
+          // If the user presses the enter key, then behave the same way as if they pressed the 'OK' button.
+          submit();
+        }
+      }
+    }
+
     function onKeypress(e) {
-      if ( e.key < '0' ||  '9' < e.key) {
-        // If the key is not a digit, don't ente it.
+      if (e.key < '0' ||  '9' < e.key) {
+        // If the key is not a digit, don't enter it.
         e.preventDefault();
         if ('a' < e.key && e.key < 'z') {
           // If the user enters a letter, go to that variable if it exists.
@@ -48,7 +69,11 @@ export default {
       }
       let c = Number.parseInt(input.coefficient);
       if (isNaN(c)) {
-        c = 1;
+        if (input.coefficient == '-') {
+          c = -1;
+        } else {
+          c = 1;
+        }
       }
       emit('input', new Expression(c, 1, 'v', new VariableGroup(group)));
     }
@@ -64,7 +89,7 @@ export default {
       const inputNode = Vue.h('input', {
         id: inputIdBase + "-coefficient",
         value: input.coefficient,
-        type: 'number',
+        inputmode: 'numeric',
         min: '1',
         max: '99',
         placeholder: '1',
@@ -72,13 +97,9 @@ export default {
         class: ['coefficient-input'],
         onInput: (e) => {
           e.stopPropagation();
-          if (e.target.value == "") {
-            input.coefficient = "";
-          } else {
-            input.coefficient = e.target.value % 100;
-          }
+          input.coefficient = e.target.value;
         },
-        onKeypress: onKeypress,
+        onKeypress: onCoefficientKeypress,
       });
       items.push(inputNode);
 
