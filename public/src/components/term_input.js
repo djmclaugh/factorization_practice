@@ -21,6 +21,8 @@ export default {
       vars: vars,
     });
 
+    let isSingleMinusSign = false;
+
     function onCoefficientKeypress(e) {
       if (e.key != '-' && (e.key < '0' ||  '9' < e.key)) {
         // If the key is not a digit or the minus sign, don't enter it.
@@ -36,7 +38,13 @@ export default {
         } else if (e.key == 'Enter') {
           // If the user presses the enter key, then behave the same way as if they pressed the 'OK' button.
           submit();
+        } else {
+          isSingleMinusSign = false;
         }
+      } else if (e.key == '-') {
+        isSingleMinusSign = true;
+      } else {
+        isSingleMinusSign = false;
       }
     }
 
@@ -68,8 +76,10 @@ export default {
         }
       }
       let c = Number.parseInt(input.coefficient);
+      console.log('parsed:');
+      console.log(c);
       if (isNaN(c)) {
-        if (input.coefficient == '-') {
+        if (isSingleMinusSign) {
           c = -1;
         } else {
           c = 1;
@@ -89,11 +99,10 @@ export default {
       const inputNode = Vue.h('input', {
         id: inputIdBase + "-coefficient",
         value: input.coefficient,
-        inputmode: 'numeric',
-        min: '1',
+        type: 'number',
+        min: '-99',
         max: '99',
         placeholder: '1',
-        autofocus: true,
         class: ['coefficient-input'],
         onInput: (e) => {
           e.stopPropagation();
