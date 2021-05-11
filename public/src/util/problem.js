@@ -308,8 +308,8 @@ function generateProductSumExpression(maxCoefficient, maxPower, maxVariables) {
 }
 
 export default class Problem {
-  static STRATEGIES = { CF, DS, PST, QE, NA };
-  static STRATEGIES_LIST = [CF, DS, PST, QE, NA];
+  static get STRATEGIES() { return { CF, DS, PST, QE, NA }; }
+  static get STRATEGIES_LIST() { return [CF, DS, PST, QE, NA]; }
 
   constructor(options) {
     const strategy = randFromList(options.possibleStrategies);

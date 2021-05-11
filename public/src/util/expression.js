@@ -24,9 +24,9 @@ function gcdOfList(list) {
 }
 
 export class VariableGroup {
-  static CONSTANT = new VariableGroup({});
-  static X = new VariableGroup({x:1});
-  static Y = new VariableGroup({x:1});
+  static get CONSTANT() { return new VariableGroup({}); }
+  static get X() { return new VariableGroup({x:1}); }
+  static get Y() { return new VariableGroup({x:1}); }
 
   // Lexicographical ordering
   static compare(a, b) {

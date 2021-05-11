@@ -1,9 +1,9 @@
 import { Expression } from './expression.js'
 
 export default class Question {
-  static MC = "Multiple Choice";
-  static ST = "Simple Term";
-  static TN = "Two Numbers";
+  static get MC() { return "Multiple Choice"; }
+  static get ST() { return "Simple Term"; }
+  static get TN() { return "Two Numbers"; }
 
   constructor(question, inputType, inputOptions, processAnswer) {
     this.question = question;
